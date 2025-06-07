@@ -12,3 +12,5 @@
 1. Клонируйте репозиторий:
    ```bash
    git clone https://github.com/5ud0r007/social-media-redirect-site.git
+
+## Лицензия MIT
