@@ -1,0 +1,239 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile-Optimized Social Icons with LOADERAW</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #000;
+            transition: background-color 0.5s;
+            overflow: hidden;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .title {
+            font-family: 'Arial Black', Arial, sans-serif;
+            font-size: 3rem;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-bottom: 20px;
+            animation: flicker 2s infinite alternate;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% {
+                opacity: 1;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.5);
+            }
+            20%, 24%, 55% {
+                opacity: 0.7;
+                text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+            }
+        }
+        .sci {
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            z-index: 1;
+            padding: 10px;
+        }
+        .sci li {
+            list-style: none;
+        }
+        .sci li a {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 80px;
+            height: 80px;
+            background: #fff;
+            color: #000;
+            font-size: 2.5em;
+            text-decoration: none;
+            border-radius: 10px;
+            transform-style: preserve-3d;
+            transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+        .sci li a:hover {
+            background: #333;
+            color: #fff;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.7);
+            transform: translateY(-5px);
+        }
+        .sci li a i {
+            transition: 0.4s;
+            pointer-events: none;
+        }
+        .sci li a:hover i {
+            transform: scale(1.2) translateZ(30px);
+        }
+        @media (max-width: 600px) {
+            .title {
+                font-size: 2rem;
+                letter-spacing: 3px;
+                margin-bottom: 15px;
+            }
+            .sci {
+                gap: 15px;
+            }
+            .sci li a {
+                width: 60px;
+                height: 60px;
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="stars"></canvas>
+    <h1 class="title">LOADERAW</h1>
+    <ul class="sci">
+        <li><a href="#" style="--clr: #333;"><i class="fab fa-twitter"></i></a></li>
+        <li><a href="#" style="--clr: #333;"><i class="fab fa-facebook-f"></i></a></li>
+        <li><a href="#" style="--clr: #333;"><i class="fab fa-instagram"></i></a></li>
+        <li><a href="#" style="--clr: #333;"><i class="fab fa-youtube"></i></a></li>
+    </ul>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <script>
+        VanillaTilt.init(document.querySelectorAll(".sci li a"), {
+            max: 20,
+            speed: 400,
+            glare: true,
+            "max-glare": 0.2,
+            scale: 1.1
+        });
+
+        let list = document.querySelectorAll('.sci li');
+        let bg = document.querySelector('body');
+        list.forEach(element => {
+            element.addEventListener('mouseenter', function() {
+                bg.style.backgroundColor = '#222';
+            });
+            element.addEventListener('mouseleave', function() {
+                bg.style.backgroundColor = '#000';
+            });
+        });
+
+        const canvas = document.getElementById('stars');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let stars = [];
+        const numStars = 60;
+
+        class Star {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height * 0.3;
+                this.size = Math.random() * 1 + 0.5;
+                this.speed = Math.random() * 1.5 + 0.5;
+                this.opacity = Math.random() * 0.3 + 0.2;
+            }
+            update() {
+                this.y += this.speed;
+                this.x -= this.speed * 0.2;
+                if (this.y > canvas.height || this.x < 0) {
+                    this.reset();
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        function initStars() {
+            stars = [];
+            for (let i = 0; i < numStars; i++) {
+                stars.push(new Star());
+            }
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+            requestAnimationFrame(animateStars);
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initStars();
+        });
+
+        initStars();
+        animateStars();
+    </script>
+</body>
+</html>
